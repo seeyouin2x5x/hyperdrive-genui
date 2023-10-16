@@ -1,0 +1,71 @@
+"use client";
+import React from "react";
+import { useChat } from "ai/react";
+import { makingSnacks, replaceCodeBlocks } from "./api/snack/route";
+
+export default function Chat() {
+  const [snackUrl, setSnackUrl] = React.useState("");
+  const [snackUrls, setSnackUrls] = React.useState([]);
+
+  React.useEffect(() => {
+    first
+  }, [])
+  
+
+
+
+
+
+
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: "api/snack/",
+    initialMessages: [{ role: "assistant", content: "Hello,...", id: "1" }],
+    onFinish(message) {
+      // console.log(message);
+      const completion = message.role === "assistant" ? message.content : null;
+      const snackUrl =
+        message.role === "assistant" &&
+        completion &&
+        completion.includes(`jsx`) &&
+        makingSnacks(completion);
+      setSnackUrls((prev) => [...prev, { url: snackUrl }]);
+    },
+  });
+
+  return (
+    <div className="flex flex-col w-full max-w-md py-24  mx-auto stretch">
+      {messages.length > 0
+        ? messages.map((m) => {
+            const aicontent = replaceCodeBlocks(m.content, "");
+            const snackUrl =
+              m.role === "assistant" && m.content.includes(`jsx`)
+                ? makingSnacks(m.content)
+                : null;
+            return (
+              <div key={m.id} className="whitespace-pre-wrap">
+                {m.role === "user" ? "User: " : "AI: "}
+                {m.role === "user" ? m.content : aicontent}
+
+                {snackUrl ? (
+                  <iframe
+                    style={{ height: "600px", width: "1000px" }}
+                    src={snackUrl}
+                    allow="geolocation; camera; microphone"
+                  />
+                ) : null}
+              </div>
+            );
+          })
+        : null}
+
+      <form onSubmit={handleSubmit}>
+        <input
+          className="fixed bottom-0 w-full max-w-md p-2 mb-8 border border-gray-300 rounded shadow-xl"
+          value={input}
+          placeholder="Say something..."
+          onChange={handleInputChange}
+        />
+      </form>
+    </div>
+  );
+}
