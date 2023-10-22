@@ -87,7 +87,8 @@ async function pinconesearch(query) {
   /* Search the vector DB independently with meta filters */
   const results = await vectorStore.similaritySearch(query, 4);
   //   console.log(results);
-  return `${results}`;
+  return results.map(item=>item.pageContent)
+
 }
 
 export async function POST(req) {
@@ -104,7 +105,7 @@ export async function POST(req) {
       },
     ];
     const searchContext = await pinconesearch(query);
-    initalmessages.push({ role: "user", content: `search context in double quote "${searchContext}" ` });
+    initalmessages.push({ role: "user", content: `search context in double quote "${searchContext.toString()}" ` });
     initalmessages.push({
       role: "user",
       content:
